@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Scientific Calculator</title>
+    <style>
+        /* Modern CSS Reset & Glassmorphism Theme */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* Vibrant dark gradient background */
+            background: linear-gradient(135deg, #141e30, #243b55, #4ca1af);
+            background-size: 200% 200%;
+            animation: gradientBG 10s ease infinite;
+            color: #ffffff;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* The Calculator Container */
+        .calculator {
+            width: 420px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        /* Display Area */
+        .display {
+            text-align: right;
+            margin-bottom: 25px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history {
+            min-height: 20px;
+            font-size: 14px;
+            color: #a0aab2;
+            letter-spacing: 1px;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-bottom: 8px;
+        }
+
+        .result {
+            font-size: 42px;
+            font-weight: 300;
+            overflow-x: auto;
+            white-space: nowrap;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Hide scrollbar in display */
+        .result::-webkit-scrollbar { display: none; }
+
+        /* Button Grid Layout */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        /* Button Styling */
+        .btn {
+            border: none;
+            outline: none;
+            padding: 16px 0;
+            font-size: 17px;
+            font-weight: 500;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e1e1e1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            user-select: none;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Specific Button Categories */
+        .btn.num {
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 22px;
+            color: #fff;
+            font-weight: 400;
+        }
+
+        .btn.op {
+            background: rgba(255, 165, 0, 0.8); /* Vibrant Orange */
+            color: #fff;
+            font-size: 24px;
+            font-weight: 400;
+        }
+        .btn.op:hover { background: rgba(255, 165, 0, 1); }
+
+        .btn.ac, .btn.del {
+            background: rgba(231, 76, 60, 0.8); /* Red */
+            color: #fff;
+            font-weight: 600;
+        }
+        .btn.ac:hover, .btn.del:hover { background: rgba(231, 76, 60, 1); }
+
+        .btn.eq {
+            background: rgba(46, 204, 113, 0.8); /* Green */
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+        }
+        .btn.eq:hover { background: rgba(46, 204, 113, 1); }
+
+        .btn.fn {
+            font-size: 15px;
+            color: #00d2d3; /* Cyan tint for scientific functions */
+        }
+        
+        #deg-btn { color: #feca57; font-weight: bold; }
+
+        /* Responsive scaling for mobile devices */
+        @media (max-width: 450px) {
+            .calculator { width: 95%; padding: 20px; border-radius: 18px; }
+            .buttons { gap: 8px; }
+            .btn { font-size: 15px; padding: 14px 0; border-radius: 10px; }
+            .btn.num { font-size: 20px; }
+            .result { font-size: 36px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display">
+            <div class="history" id="history"></div>
+            <div class="result" id="result">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn fn" id="deg-btn" onclick="toggleAngle()">DEG</button>
+            <button class="btn fn" onclick="insert('!')">x!</button>
+            <button class="btn fn" onclick="insert('(')">(</button>
+            <button class="btn fn" onclick="insert(')')">)</button>
+            <button class="btn ac" onclick="clearAll()">AC</button>
+            
+            <button class="btn fn" onclick="insert('sin(')">sin</button>
+            <button class="btn fn" onclick="insert('cos(')">cos</button>
+            <button class="btn fn" onclick="insert('tan(')">tan</button>
+            <button class="btn fn" onclick="insert('log(')">log</button>
+            <button class="btn fn" onclick="insert('ln(')">ln</button>
+            
+            <button class="btn fn" onclick="insert('asin(')">sin⁻¹</button>
+            <button class="btn fn" onclick="insert('acos(')">cos⁻¹</button>
+            <button class="btn fn" onclick="insert('atan(')">tan⁻¹</button>
+            <button class="btn fn" onclick="insert('√(')">√</button>
+            <button class="btn del" onclick="deleteLast()">DEL</button>
+            
+            <button class="btn fn" onclick="insert('π')">π</button>
+            <button class="btn num" onclick="insert('7')">7</button>
+            <button class="btn num" onclick="insert('8')">8</button>
+            <button class="btn num" onclick="insert('9')">9</button>
+            <button class="btn op" onclick="insert('÷')">÷</button>
+            
+            <button class="btn fn" onclick="insert('e')">e</button>
+            <button class="btn num" onclick="insert('4')">4</button>
+            <button class="btn num" onclick="insert('5')">5</button>
+            <button class="btn num" onclick="insert('6')">6</button>
+            <button class="btn op" onclick="insert('×')">×</button>
+            
+            <button class="btn fn" onclick="insert('^')">xʸ</button>
+            <button class="btn num" onclick="insert('1')">1</button>
+            <button class="btn num" onclick="insert('2')">2</button>
+            <button class="btn num" onclick="insert('3')">3</button>
+            <button class="btn op" onclick="insert('−')">−</button>
+            
+            <button class="btn fn" onclick="insert('ans')">ANS</button>
+            <button class="btn num" onclick="insert('0')">0</button>
+            <button class="btn num" onclick="insert('.')">.</button>
+            <button class="btn eq" onclick="calculate()">=</button>
+            <button class="btn op" onclick="insert('+')">+</button>
+        </div>
+    </div>
+
+    <script>
+        let resultEl = document.getElementById('result');
+        let historyEl = document.getElementById('history');
+        let currentInput = '';
+        let isDegree = true;
+        let lastAns = 0;
+
+        // Toggles between Degrees and Radians
+        function toggleAngle() {
+            isDegree = !isDegree;
+            document.getElementById('deg-btn').innerText = isDegree ? 'DEG' : 'RAD';
+        }
+
+        // Inserts characters into the calculation string
+        function insert(val) {
+            if (currentInput === 'Error') currentInput = '';
+            currentInput += val;
+            updateDisplay();
+        }
+
+        // Clears the entire board (AC)
+        function clearAll() {
+            currentInput = '';
+            historyEl.innerText = '';
+            updateDisplay();
+        }
+
+        // Deletes the last character (DEL)
+        function deleteLast() {
+            if (currentInput === 'Error') {
+                currentInput = '';
+            } else {
+                currentInput = currentInput.toString().slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        // Visually updates the main screen
+        function updateDisplay() {
+            resultEl.innerText = currentInput || '0';
+            resultEl.scrollLeft = resultEl.scrollWidth; // Auto-scrolls long equations
+        }
+
+        // Secure Mathematical Wrappers injected into the parser
+        const MathFns = {
+            sin: (x) => isDegree ? Math.sin(x * Math.PI / 180) : Math.sin(x),
+            cos: (x) => isDegree ? Math.cos(x * Math.PI / 180) : Math.cos(x),
+            tan: (x) => isDegree ? Math.tan(x * Math.PI / 180) : Math.tan(x),
+            asin: (x) => isDegree ? Math.asin(x) * 180 / Math.PI : Math.asin(x),
+            acos: (x) => isDegree ? Math.acos(x) * 180 / Math.PI : Math.acos(x),
+            atan: (x) => isDegree ? Math.atan(x) * 180 / Math.PI : Math.atan(x),
+            log: (x) => Math.log10(x),
+            ln: (x) => Math.log(x),
+            sqrt: (x) => Math.sqrt(x),
+            fact: (n) => {
+                if (n < 0) return NaN;
+                if (n === 0 || n === 1) return 1;
+                let res = 1;
+                for(let i = 2; i <= n; i++) res *= i;
+                return res;
+            }
+        };
+
+        // Core Calculation Engine
+        function calculate() {
+            if (!currentInput) return;
+            try {
+                let expr = currentInput;
+                historyEl.innerText = currentInput + ' =';
+                
+                // 1. Format visual operators into JS-readable operators
+                expr = expr.replace(/×/g, '*');
+                expr = expr.replace(/÷/g, '/');
+                expr = expr.replace(/−/g, '-');
+                expr = expr.replace(/π/g, 'Math.PI');
+                expr = expr.replace(/e/g, 'Math.E');
+                expr = expr.replace(/ans/g, lastAns);
+                expr = expr.replace(/\^/g, '**');
+                
+                // 2. Parse Factorials using regex (e.g., 5! -> MathFns.fact(5))
+                expr = expr.replace(/(\d+(?:\.\d+)?)!/g, 'MathFns.fact($1)');
+                
+                // 3. Parse Trigonometry & Logs
+                // Replaces inverse trig first, using negative lookbehinds to prevent overlaps
+                expr = expr.replace(/asin\(/g, 'MathFns.asin(');
+                expr = expr.replace(/acos\(/g, 'MathFns.acos(');
+                expr = expr.replace(/atan\(/g, 'MathFns.atan(');
+                
+                // Replaces standard trig only if not preceded by 'a'
+                expr = expr.replace(/(?<!a)sin\(/g, 'MathFns.sin(');
+                expr = expr.replace(/(?<!a)cos\(/g, 'MathFns.cos(');
+                expr = expr.replace(/(?<!a)tan\(/g, 'MathFns.tan(');
+                
+                expr = expr.replace(/log\(/g, 'MathFns.log(');
+                expr = expr.replace(/ln\(/g, 'MathFns.ln(');
+                expr = expr.replace(/√\(/g, 'MathFns.sqrt(');
+
+                // 4. Evaluate string safely using an isolated Function constructor
+                const calcFunc = new Function('MathFns', 'return ' + expr);
+                let result = calcFunc(MathFns);
+                
+                // 5. Cleanup float precision (e.g., prevents 0.1 + 0.2 = 0.30000000000000004)
+                if (typeof result === 'number' && !isNaN(result)) {
+                    result = parseFloat(result.toPrecision(12));
+                }
+
+                if (isNaN(result) || !isFinite(result)) throw new Error("Invalid Math");
+
+                currentInput = result.toString();
+                lastAns = result; // Save to ANS variable
+                updateDisplay();
+                
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+                // Auto-clear the error message after 1.5 seconds
+                setTimeout(() => {
+                    if (currentInput === 'Error') {
+                        currentInput = '';
+                        updateDisplay();
+                    }
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
+
